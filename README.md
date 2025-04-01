@@ -22,7 +22,7 @@ Herramienta de monitorización remota con comunicación cifrada vía Discord.
 3. Ejecutar:
 
    ```bash
-   java -jar target/Rat-obfuscated.jar
+   java -jar target/rat-obfuscated.jar
    ```
 
 ## 📋 Comandos
