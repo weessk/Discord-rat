@@ -4,38 +4,50 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Maven](https://img.shields.io/badge/Apache%20Maven-3.8%2B-blue)
 
-Herramienta de monitorización remota con comunicación cifrada vía Discord.
+Remote monitoring tool with encrypted communication via Discord.
 
-## 🚀 Instalación Rápida
+## 🚀 Quick Setup
 
-1. Clonar repositorio:
-
+1. Clone and build:
    ```bash
-   git clone https://github.com/Pepeins/Discord-rat.git && cd repositorio
-   ```
-2. Compilar:
-
-   ```bash
+   git clone https://github.com/Pepeins/Discord-rat.git && cd Discord-rat
    mvn clean package
    ```
 
-3. Ejecutar:
+2. Configure:
+   - Create Discord bot at [Developer Portal](https://discord.com/developers/applications)
+   - Update `TOKEN` and `CHANNEL_ID` in `rat.java`
 
+3. Run:
    ```bash
    java -jar target/rat-obfuscated.jar
    ```
 
-## 📋 Comandos
+## 📋 Commands
 
-| Comando            | Función                     |
-|--------------------|----------------------------|
-| `!info`           | Info del sistema            |
-| `!cmd ipconfig`   | Ejecuta comandos            |
-| `!screenshot`     | Captura pantalla            |
-| `!grabar 15`      | Graba audio (15 segundos)   |
-| `!descargar /ruta`| Descarga archivos           |
-| `!procesos`       | Lista procesos activos      |
+| Command              | Function                        |
+|----------------------|--------------------------------|
+| `!info`             | System information              |
+| `!cmd <command>`    | Execute system commands         |
+| `!screenshot`       | Capture screenshot              |
+| `!record <seconds>` | Record audio (1-30 seconds)    |
+| `!download <path>`  | Download files (max 8MB)       |
+| `!processes`        | List active processes           |
+| `!ip`               | Get public IP address           |
+| `!exit`             | Terminate program               |
 
-## ⚠️ Aviso Legal
+## 🛠️ Requirements
 
-**USO ÉTICO ÚnICAMENTE.** Prohibido su uso sin autorización explícita.
+- Java 8+
+- Maven 3.8+
+- Discord Bot Token & Channel ID
+
+## ⚠️ Legal Notice
+
+**FOR EDUCATIONAL AND AUTHORIZED USE ONLY.**
+
+Prohibited for unauthorized access or malicious activities. Users are responsible for compliance with applicable laws.
+
+## 📄 License
+
+MIT License - Use responsibly and ethically.
