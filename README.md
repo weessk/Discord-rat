@@ -1,53 +1,37 @@
-# 🔍 RAT/Remote System Monitor
+# discord rat
 
-![Java](https://img.shields.io/badge/Java-8%2B-orange?logo=openjdk)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Maven](https://img.shields.io/badge/Apache%20Maven-3.8%2B-blue)
+![](https://img.shields.io/badge/Java-af-orange?logo=openjdk)
+![](https://img.shields.io/badge/License-do%20what%20u%20want-green)
+![](https://img.shields.io/badge/Maven-lol-blue)
 
-Remote monitoring tool with encrypted communication via Discord.
+had this on private, fuck it. simple discord c2 rat for the homies.
 
-## 🚀 Quick Setup
+## setup
+```bash
+git clone https://github.com/Pepeins/Discord-rat.git && cd Discord-rat
+mvn clean package
+```
 
-1. Clone and build:
-   ```bash
-   git clone https://github.com/Pepeins/Discord-rat.git && cd Discord-rat
-   mvn clean package
-   ```
+make discord bot, paste TOKEN + CHANNEL_ID in rat.java, run it:
+```bash
+java -jar target/rat-obfuscated.jar
+```
 
-2. Configure:
-   - Create Discord bot at [Developer Portal](https://discord.com/developers/applications)
-   - Update `TOKEN` and `CHANNEL_ID` in `rat.java`
+## commands
+- `!info` - machine info
+- `!cmd <command>` - run cmd commands  
+- `!screenshot` - capture screen
+- `!record <seconds>` - audio recording (1-30s)
+- `!download <path>` - download files (8mb max)
+- `!processes` - list running processes
+- `!ip` - get public ip
+- `!exit` - kill program
 
-3. Run:
-   ```bash
-   java -jar target/rat-obfuscated.jar
-   ```
+## requirements
+java 8+, maven, discord bot token
 
-## 📋 Commands
+## disclaimer
+educational purposes only lol. get caught = skill issue on ur part.
 
-| Command              | Function                        |
-|----------------------|--------------------------------|
-| `!info`             | System information              |
-| `!cmd <command>`    | Execute system commands         |
-| `!screenshot`       | Capture screenshot              |
-| `!record <seconds>` | Record audio (1-30 seconds)    |
-| `!download <path>`  | Download files (max 8MB)       |
-| `!processes`        | List active processes           |
-| `!ip`               | Get public IP address           |
-| `!exit`             | Terminate program               |
-
-## 🛠️ Requirements
-
-- Java 8+
-- Maven 3.8+
-- Discord Bot Token & Channel ID
-
-## ⚠️ Legal Notice
-
-**FOR EDUCATIONAL AND AUTHORIZED USE ONLY.**
-
-Prohibited for unauthorized access or malicious activities. Users are responsible for compliance with applicable laws.
-
-## 📄 License
-
-MIT License - Use responsibly and ethically.
+## license
+MIT - do whatever
